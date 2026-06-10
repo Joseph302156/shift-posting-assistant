@@ -1,4 +1,4 @@
-# Shift-Posting Assistant — built for Traba
+# Shift-Posting Assistant 
 
 Turn a plain-English staffing request into a **reliability-optimized shift post**, with a transparent fill-rate readiness score that flags exactly what to fix before the shift goes live.
 
