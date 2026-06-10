@@ -31,25 +31,9 @@ export function ResultView({ result }: { result: ShiftPostResult }) {
   return (
     <div className="animate-rise space-y-5">
       {/* headline */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-line bg-white px-5 py-4 shadow-sm">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-ink-soft/50">Structured shift post</p>
-          <p className="mt-0.5 font-semibold text-ink">{result.summary}</p>
-        </div>
-        <span
-          className="rounded-full px-2.5 py-1 text-xs font-medium"
-          style={{
-            color: result.engine === "claude" ? "var(--color-brand-dark)" : "var(--color-ink-soft)",
-            backgroundColor: result.engine === "claude" ? "var(--color-brand-soft)" : "var(--color-line)",
-          }}
-          title={
-            result.engine === "claude"
-              ? `Parsed with the Claude API (${result.model})`
-              : "Parsed with the built-in demo engine (no API key set)"
-          }
-        >
-          {result.engine === "claude" ? `✦ Claude · ${result.model}` : "Demo engine"}
-        </span>
+      <div className="rounded-2xl border border-line bg-white px-5 py-4 shadow-sm">
+        <p className="text-xs font-medium uppercase tracking-wide text-ink-soft/50">Structured shift post</p>
+        <p className="mt-0.5 font-semibold text-ink">{result.summary}</p>
       </div>
 
       {result.engine === "demo" && (
