@@ -107,6 +107,12 @@ export interface ShiftPostResult {
   engine: "claude" | "demo";
   /** Model id used, when engine === "claude". */
   model?: string;
+  /**
+   * Why the demo engine was used instead of Claude (only set when engine === "demo"):
+   *   "no_key"       — no ANTHROPIC_API_KEY was present in the environment
+   *   "claude_error" — a key was present but the Claude request failed (invalid key, whitespace, etc.)
+   */
+  fallbackReason?: "no_key" | "claude_error";
 }
 
 export interface GenerateRequestBody {

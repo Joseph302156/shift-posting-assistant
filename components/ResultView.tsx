@@ -56,11 +56,21 @@ export function ResultView({ result }: { result: ShiftPostResult }) {
         <div className="flex items-start gap-2 rounded-xl border border-warn/30 bg-warn-soft/50 px-4 py-3 text-xs leading-relaxed text-ink-soft/80">
           <span aria-hidden className="mt-0.5 text-warn">ⓘ</span>
           <span>
-            Running on the built-in <strong>demo engine</strong> — a lightweight pattern matcher used when no API
-            key is set. It can miss unusual phrasing. Set{" "}
-            <code className="rounded bg-ink/5 px-1 py-0.5">ANTHROPIC_API_KEY</code> (see{" "}
-            <code className="rounded bg-ink/5 px-1 py-0.5">.env.example</code>) to parse with the Claude API, which
-            understands free-form requests far more reliably.
+            Running on the built-in <strong>demo engine</strong> — a lightweight pattern matcher that can miss
+            unusual phrasing.{" "}
+            {result.fallbackReason === "claude_error" ? (
+              <>
+                An <code className="rounded bg-ink/5 px-1 py-0.5">ANTHROPIC_API_KEY</code> was found, but the Claude
+                request failed — the key may be invalid or contain extra whitespace. Verify the value and redeploy.
+              </>
+            ) : (
+              <>
+                No <code className="rounded bg-ink/5 px-1 py-0.5">ANTHROPIC_API_KEY</code> was detected in this
+                environment. Set it (locally in <code className="rounded bg-ink/5 px-1 py-0.5">.env.local</code>; on
+                Vercel under Project → Settings → Environment Variables, scoped to Production) and redeploy to parse
+                with the Claude API.
+              </>
+            )}
           </span>
         </div>
       )}

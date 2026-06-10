@@ -32,7 +32,7 @@ function toParsedShift(o: LlmParseOutput): ParsedShift {
 function assemble(
   o: LlmParseOutput,
   engine: "claude" | "demo",
-  model?: string,
+  extra: { model?: string; fallbackReason?: ShiftPostResult["fallbackReason"] } = {},
 ): ShiftPostResult {
   const parsed = toParsedShift(o);
   const { benchmark, flags, readiness } = analyze(parsed);
@@ -44,13 +44,16 @@ function assemble(
     benchmark,
     readiness,
     engine,
-    model,
+    model: extra.model,
+    fallbackReason: extra.fallbackReason,
   };
 }
 
 async function parseWithClaude(request: string): Promise<{ output: LlmParseOutput; model: string }> {
-  const client = new Anthropic();
-  const model = process.env.SHIFT_ASSISTANT_MODEL || DEFAULT_MODEL;
+  // Trim the key defensively — a stray leading/trailing space (easy to introduce
+  // when pasting into a Vercel env var) would otherwise produce a 401.
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY?.trim() });
+  const model = process.env.SHIFT_ASSISTANT_MODEL?.trim() || DEFAULT_MODEL;
 
   const response = await client.messages.create({
     model,
@@ -72,17 +75,19 @@ async function parseWithClaude(request: string): Promise<{ output: LlmParseOutpu
 }
 
 export async function generateShiftPost(request: string): Promise<ShiftPostResult> {
-  const hasKey = Boolean(process.env.ANTHROPIC_API_KEY);
+  const hasKey = Boolean(process.env.ANTHROPIC_API_KEY?.trim());
 
   if (hasKey) {
     try {
       const { output, model } = await parseWithClaude(request);
-      return assemble(output, "claude", model);
+      return assemble(output, "claude", { model });
     } catch (err) {
-      // Stay functional for the demo even if the API call fails; log for visibility.
+      // Stay functional even if the API call fails, but record why so the UI
+      // can tell "no key" apart from "key present but request failed".
       console.error("[shift-assistant] Claude generation failed, falling back to demo engine:", err);
+      return assemble(demoParse(request), "demo", { fallbackReason: "claude_error" });
     }
   }
 
-  return assemble(demoParse(request), "demo");
+  return assemble(demoParse(request), "demo", { fallbackReason: "no_key" });
 }
